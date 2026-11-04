@@ -39,7 +39,7 @@ const nxtId = Math.max(
 
 ) + 1;
 if(productName.trim() === ""){
- setError("Product Name is required");
+ setError("Product name is required");
 return;  
 }
 
