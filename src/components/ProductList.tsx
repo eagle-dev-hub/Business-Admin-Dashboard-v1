@@ -17,9 +17,15 @@ function ProductList() {
 ])
 
 const [productName, setProductName] = useState("");
-const [productPrice, setProductPrice] = useState(0);
-const [productQuantity, setProductQuantity] = useState(0);
-const[error, setError] = useState("");
+const [productPrice, setProductPrice] = useState<number | "">("");
+const [productQuantity, setProductQuantity] = useState<number | "">("");
+const[error, setError] = useState({
+productName: "",
+productPrice: "",
+productQuantity: ""
+});
+//const [isEditModalOpen, setEditModal] = useState(false);
+//const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 const lowStockProducts = products.filter((product) =>{
 if(product.quantity <= 5){
 return true;
@@ -33,33 +39,53 @@ return false;
 function handleAddProduct(event: React.FormEvent<HTMLFormElement>){
   event.preventDefault();
 
+const newErrors = {
+  productName: "",
+  productPrice: "",
+  productQuantity: ""
+};
 
 const nxtId = Math.max(
 ...products.map(product =>product.id ) 
 
 ) + 1;
+
 if(productName.trim() === ""){
- setError("Product name is required");
-return;  
+ newErrors.productName = "Product name is required!"
+
+
 }
 
-if(productPrice <= 0){
-return;  
+if(productPrice==="" ||productPrice <= 0 ){
+newErrors.productPrice = "Product price must be greater than  0" 
+ 
+  
 }
-else if(productQuantity <= 0){
+
+ if(productQuantity === "" || productQuantity <= 0){
+  newErrors.productQuantity =  "Product quantity must be greater than  0"  
+
+
+}
+setError(newErrors);
+const hasErrors = Object.values(newErrors).some(error => error !== "");
+if(hasErrors){
 return;
+
 }
+
 
 const newProduct: Product = {  
 id: nxtId, 
-name :productName,
-price:productPrice,
-quantity:productQuantity,
+name :productName.trim(),
+price:Number(productPrice),
+quantity:Number(productQuantity),
 }
 setProducts([...products, newProduct]);
 setProductName("");
-setProductPrice(0);
-setProductQuantity(0);
+setProductPrice("");
+setProductQuantity("");
+setError(newErrors)
 
 
 }
@@ -142,14 +168,19 @@ setProductQuantity(0);
 
      
     />
-    {error && <p>{error}</p> } 
-    </div>
+    
+    {error.productName && <p>{error.productName}</p>}
+    
+    
+     
+     </div>
+    
     <div className="flex flex-col">
       <label>Product Price</label> 
       <input 
     type="number"
     value={productPrice}
-    onChange={(e) => setProductPrice(Number(e.target.value))}
+    onChange={(e) => setProductPrice(e.target.value === ""?"":Number(e.target.value) )}
     placeholder="Enter Price
     "
    className="w-full rounded-lg border
@@ -157,14 +188,16 @@ setProductQuantity(0);
         px-3 py-2 focus:ring-2
          focus:border-blue-500
           focus:outline-none focus:ring-blue-500 "
-    /></div> 
+    />
+    {error.productPrice && <p>{error.productPrice}</p>}
+    </div> 
 
     <div className="flex flex-col">
       <label>Product Quantity</label>
       <input 
     type="number"
     value={productQuantity}  
-    onChange={(e) => setProductQuantity(Number(e.target.value))} 
+    onChange={(e) => setProductQuantity(e.target.value === ""? "": Number(e.target.value) )} 
     placeholder="Enter Quantity"
      className="w-full rounded-lg border
         border-gray-300
@@ -172,6 +205,7 @@ setProductQuantity(0);
          focus:border-blue-500
           focus:outline-none focus:ring-blue-500 "
     />
+    {error.productQuantity && <p>{error.productQuantity}</p>}
      
     </div>
     </div>
